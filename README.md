@@ -72,26 +72,33 @@ http://localhost:8123
 
 macOS Docker 默认不支持 mDNS 广播，本方案通过以下方式解决：
 
-1. 使用 `network_mode: host` 让容器使用主机网络
-2. 运行 Avahi 容器提供 mDNS 服务
-3. Avahi 负责广播 HomeKit 配对信息到局域网
+1. **使用 `network_mode: host`**：让 HomeAssistant 容器直接使用主机网络（关键！）
+2. **运行 Avahi 容器**：提供额外的 mDNS 服务支持
+3. **mDNS 广播**：HomeKit 配对信息可以正常广播到局域网
 
 ```
 ┌─────────────────────────────────┐
-│       macOS 主机                 │
+│       macOS 主机网络             │
 │  ┌──────────────────────────┐  │
-│  │  Home Assistant 容器      │  │
-│  │  - HomeKit 逻辑           │  │
+│  │  HomeAssistant (host)    │  │
+│  │  - 直接使用主机网络       │  │
+│  │  - HomeKit mDNS 广播     │  │
 │  └──────────────────────────┘  │
 │  ┌──────────────────────────┐  │
-│  │  Avahi 容器               │  │
-│  │  - mDNS 广播              │  │
+│  │  Avahi (host)            │  │
+│  │  - 增强 mDNS 支持         │  │
 │  └──────────────────────────┘  │
-│         ↓ mDNS                  │
+│         ↓ mDNS 广播             │
 └─────────────────────────────────┘
          ↓
     iPhone/iPad
+    家庭 App 可以发现
 ```
+
+**为什么必须使用 host 网络模式？**
+- Docker 的桥接网络会隔离 mDNS 广播
+- iPhone 无法在局域网中发现 HomeKit Bridge
+- host 模式让容器直接使用主机网络，解决发现问题
 
 ### 配置 HomeKit
 
@@ -287,8 +294,11 @@ lsof -ti:8123 | xargs kill -9
 - [HACS 安装指南](docs/HACS_INSTALLATION.md)
 - [快速修复指南](docs/QUICK_FIX_MDNS.md)
 
-### 详细配置
+### HomeKit 相关
 - [HomeKit 配置](docs/HOMEKIT_SETUP.md)
+- [HomeKit 无法发现解决方案](docs/HOMEKIT_DISCOVERY_FIX.md) ⭐ 重要
+
+### 详细配置
 - [米家配置](docs/XIAOMI_SETUP.md)
 - [故障排除](docs/TROUBLESHOOTING.md)
 - [迁移指南](docs/MIGRATION_GUIDE.md)

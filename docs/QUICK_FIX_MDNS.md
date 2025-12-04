@@ -45,7 +45,83 @@ http://localhost:8123
 
 ---
 
-## 问题 2：Xiaomi 集成登录失败
+## 问题 2：iPhone 无法发现 HomeKit Bridge
+
+### 症状
+- ✅ Home Assistant 可以正常访问
+- ✅ 米家设备已成功连接
+- ❌ iPhone 家庭 App 扫描不到 HomeKit Bridge
+- ❌ 家庭 App 中看不到 "Home Assistant Bridge"
+
+### 根本原因
+HomeKit 使用 mDNS (Bonjour) 协议进行设备发现。Docker 的桥接网络模式会阻止 mDNS 广播，导致 iPhone 无法发现设备。
+
+### 快速解决（5 分钟）⭐
+
+**步骤 1：修改 docker-compose.yml**
+
+编辑 `docker-compose.yml`，为 homeassistant 服务添加 `network_mode: host`：
+
+```yaml
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    network_mode: host  # 添加这一行！
+    volumes:
+      - ./config:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    # 删除 ports 配置（使用 host 模式时不需要）
+    environment:
+      - TZ=Asia/Shanghai
+```
+
+**步骤 2：重启容器**
+
+```bash
+docker-compose down
+docker-compose up -d
+```
+
+**步骤 3：等待 2-3 分钟**
+
+让 HomeKit Bridge 完全初始化。
+
+**步骤 4：在 iPhone 上扫描**
+
+1. 打开 **家庭** App
+2. 点击右上角 **+**
+3. 选择 **添加配件**
+4. 点击 **更多选项...**
+5. 应该能看到 **Home Assistant Bridge**
+6. 点击它并输入配对码（在 Home Assistant 的"设备与服务"中查看）
+
+### 验证配置
+
+```bash
+# 检查网络模式
+docker inspect homeassistant | grep NetworkMode
+# 应该显示: "NetworkMode": "host"
+
+# 检查 mDNS 广播
+dns-sd -B _hap._tcp
+# 应该能看到 Home Assistant Bridge
+```
+
+### 其他检查项
+
+1. **确认同一网络**：iPhone 和 Mac 必须在同一 Wi-Fi
+2. **检查防火墙**：临时关闭 macOS 防火墙测试
+3. **重启 Avahi**：`docker-compose restart avahi`
+4. **重置 HomeKit**：删除 `config/.storage/homekit.*` 后重启
+
+详细说明：查看 [HomeKit 配置指南](HOMEKIT_SETUP.md)
+
+---
+
+## 问题 3：Xiaomi 集成登录失败
 
 ### 症状
 ```
@@ -146,7 +222,7 @@ docker-compose restart homeassistant
 
 ---
 
-## 问题 3：集成配置页面无法打开
+## 问题 4：集成配置页面无法打开
 
 ### 症状
 点击"添加集成"后页面无法加载

@@ -133,18 +133,51 @@ homekit:
 
 ### Q: iPhone 找不到 Home Assistant Bridge？
 
-**解决方案：**
-1. 确认 iPhone 和 Mac 在同一网络
-2. 检查 macOS 防火墙设置：
-   ```bash
-   # 系统偏好设置 > 安全性与隐私 > 防火墙
-   # 确保允许 Home Assistant 接收传入连接
+**这是 Docker 环境中最常见的问题！**
+
+**根本原因：**
+- HomeKit 依赖 mDNS (Bonjour) 协议进行设备发现
+- Docker 的桥接网络模式会阻止 mDNS 广播
+- iPhone 无法在局域网中发现 HomeKit Bridge
+
+**解决方案（必须）：**
+
+1. **使用 host 网络模式**（已在 docker-compose.yml 中配置）：
+   ```yaml
+   services:
+     homeassistant:
+       network_mode: host  # 关键配置！
    ```
-3. 重启 Home Assistant
-4. 使用 mDNS 检查工具验证：
+
+2. **重启容器应用新配置**：
    ```bash
-   dns-sd -B _hap._tcp
+   docker-compose down
+   docker-compose up -d
    ```
+
+3. **等待 2-3 分钟**让服务完全启动
+
+4. **在 iPhone 上重新扫描**：
+   - 打开家庭 App
+   - 点击 + > 添加配件
+   - 选择"更多选项"
+   - 应该能看到 "Home Assistant Bridge"
+
+**验证配置：**
+```bash
+# 检查容器网络模式
+docker inspect homeassistant | grep NetworkMode
+# 应该显示: "NetworkMode": "host"
+
+# 检查 mDNS 广播
+dns-sd -B _hap._tcp
+# 应该能看到 Home Assistant Bridge
+```
+
+**其他检查项：**
+- 确认 iPhone 和 Mac 在同一 Wi-Fi 网络
+- 关闭 macOS 防火墙或允许传入连接
+- 确保 Avahi 容器正在运行：`docker-compose ps avahi`
 
 ### Q: 配对失败或超时？
 

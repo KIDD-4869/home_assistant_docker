@@ -1,0 +1,62 @@
+# Home Assistant (UTM + HAOS) 快速开始指南
+
+## 🚀 快速安装流程
+
+### 1. 下载 HAOS 镜像（自动）
+bash scripts/download-haos.sh
+
+这个脚本会：
+✅ 自动检测你的 Mac 芯片（Apple Silicon 或 Intel）
+✅ 下载最新版本的 Home Assistant OS 镜像
+✅ 自动解压并验证文件
+✅ 显示下一步操作提示
+
+### 2. 安装 UTM 虚拟机
+方法 1（推荐）：
+brew install --cask utm
+
+方法 2：
+访问 https://mac.getutm.app/ 下载安装
+
+### 3. 创建虚拟机
+按照脚本提示或查看完整指南：
+- 完整安装指南.md（推荐新手）⭐
+- UTM创建虚拟机步骤.md
+
+### 4. 访问 Web 界面
+首次启动等待 5-10 分钟后访问:
+http://homeassistant.local:8123
+
+## 📖 详细文档
+
+- 完整安装说明: 完整安装指南.md ⭐
+- UTM 快速参考: UTM快速参考.txt
+- HomeKit 配置: HOMEKIT_快速参考.txt
+- 米家设备接入: docs/XIAOMI_QUICK_START.md
+- 故障排除: docs/TROUBLESHOOTING.md
+
+## 🔧 常用操作
+
+# 在 UTM 中启动/停止虚拟机
+打开 UTM → 选择 Home Assistant → 点击播放/停止按钮
+
+# 查看虚拟机 IP
+在 UTM 控制台中查看，或使用:
+dns-sd -G v4 homeassistant.local
+
+# 备份配置
+在 Home Assistant 界面: 设置 → 系统 → 备份
+
+## 💡 重要提示
+
+- 首次启动需要 5-10 分钟，请耐心等待
+- 虚拟机磁盘建议设置为 64GB
+- 网络模式必须选择"共享网络"
+- 创建账号时使用强密码
+- 定期在 Home Assistant 中创建备份
+
+## ⚡ 一键下载命令
+
+cd ~/Downloads && bash ~/path/to/scripts/download-haos.sh
+
+镜像会下载到: ~/Downloads/homeassistant/

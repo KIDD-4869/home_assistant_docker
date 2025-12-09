@@ -1,5 +1,5 @@
 # Home Assistant Docker 部署（支持 HomeKit）
-！！！！不支持HomeKit，此方案为AI完成的项目，经测试和查验网上资料后得知，docker在mac上不支持host，所以HomeKitBridge无法匹配上iPhone上的家庭，继而无法使用HomeKit。考虑在mac上使用的参考UTM虚拟机方案。
+！！！！不支持HomeKit，此方案为AI完成的项目，经测试和查验网上资料后得知，docker在mac上不支持host，dns无法穿透，所以HomeKitBridge无法匹配上iPhone上的家庭，继而无法使用HomeKit。考虑在mac上使用的参考UTM虚拟机方案，可参考完整安装指南UTM版。
 
 
 在 macOS 上使用 Docker 部署 Home Assistant，完整支持 HomeKit 和米家设备。
@@ -15,7 +15,7 @@
 **方法 2: 使用命令行下载**
 
 ```bash
-# Apple Silicon (M1/M2/M3)
+# Apple Silicon (M系列)
 curl -L -o ~/Downloads/Docker.dmg https://desktop.docker.com/mac/main/arm64/Docker.dmg
 open ~/Downloads/Docker.dmg
 
